@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#eeebe2">
+  <meta name="description" content="一平方米变形地台。2036 年的小户型可变家具概念，互动演示学习、用餐、活动与双人共用。">
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+  <title>一平方米 · 2036 变形地台</title>
+</head>
+<body>
+<a class="skip-link" href="#demo">跳到交互演示</a>
+<header class="header frame">
+  <a class="wordmark" href="#top"><span class="mark" aria-hidden="true"></span> 一平方米 <small>ONE SQUARE</small></a>
+  <nav aria-label="页面导航"><a href="#demo">交互演示</a><a href="#design">设计说明</a></nav>
+</header>
+<main id="top">
+  <section class="hero frame" aria-labelledby="hero-title">
+    <div class="hero-copy">
+      <p class="eyebrow"><span class="orange-dot"></span> 2036 未来科技概念</p>
+      <h1 id="hero-title">一平方米，<br><em>三种生活。</em></h1>
+      <p class="hero-description">十六个升降模块，把小房间里的一块地面变成学习桌、餐桌或活动区。</p>
+      <a href="#demo" class="button primary">亲手变形 <span aria-hidden="true">↘</span></a>
+    </div>
+    <figure class="hero-figure">
+      <canvas id="hero-canvas" width="850" height="580" role="img" aria-label="一平方米升降地台的学习模式概念图"></canvas>
+      <figcaption><span>学习模式 · 产品概念图</span><span>1.00 × 1.00 m</span></figcaption>
+    </figure>
+  </section>
+  <section class="scenario" aria-labelledby="scenario-title">
+    <div class="frame scenario-grid">
+      <div><p class="eyebrow">典型使用场景</p><h2 id="scenario-title">小房间，<br>一天要换好几次用途。</h2></div>
+      <div><p>合租学生小林在窗边写作业，中午想原地吃饭，晚上还想留出伸展空间。每换一件事，就要清桌、挪椅子、收折叠桌。和室友同时使用时，还要决定谁先用。</p><p>地台把家具收进地面。模式切换前先预览布局，再处理物品与占用，确认后才变形。</p></div>
+    </div>
+  </section>
+  <section class="demo frame" id="demo" aria-labelledby="demo-title">
+    <div class="section-head"><div><p class="eyebrow"><span class="orange-dot"></span> 可操作原型</p><h2 id="demo-title">试着切换一天。</h2></div><p>先选模式，再处理物品和占用。<br>网页演示模拟产品运行。</p></div>
+    <div class="timeline" role="group" aria-label="选择一天中的使用模式">
+      <button class="mode-button" data-mode="study" aria-pressed="true"><span>07:30</span><strong>学习</strong><small>桌面与座位</small></button>
+      <button class="mode-button" data-mode="meal" aria-pressed="false"><span>12:30</span><strong>用餐</strong><small>矮餐桌与坐垫区</small></button>
+      <button class="mode-button" data-mode="move" aria-pressed="false"><span>18:30</span><strong>活动</strong><small>模块归平</small></button>
+    </div>
+    <div class="lab">
+      <figure class="scene">
+        <div class="scene-head"><span><i class="orange-dot"></i> <strong id="scene-mode">当前 · 学习</strong></span><span>4 × 4 模块</span></div>
+        <canvas id="lab-canvas" width="850" height="580" role="img" aria-label="地台模块布局预览"></canvas>
+        <figcaption id="scene-caption">当前布局包含桌面、腿部空间和座位。</figcaption>
+      </figure>
+      <aside class="controls" aria-label="变形控制">
+        <h3 id="control-title">学习模式</h3>
+        <p id="control-description">桌面抬升，前侧形成座位，中间保留腿部空间。</p>
+        <div class="checks">
+          <div><span id="item-status">桌面有电脑和水杯</span><button class="inline-button" id="item-button">移到固定侧台</button></div>
+          <label><input type="checkbox" id="occupied"> 模拟有人站在地台上</label>
+          <label><input type="checkbox" id="shared"> 加入室友</label>
+        </div>
+        <div id="shared-panel" class="shared-panel" hidden>
+          <label for="roommate">室友想做什么</label>
+          <select id="roommate"><option value="study">阅读</option><option value="meal">一起用餐</option><option value="move">活动</option><option value="idle">稍后使用</option></select>
+          <p id="shared-message"></p>
+        </div>
+        <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
+        <button id="apply-button" class="button primary" disabled>确认变形 <span aria-hidden="true">→</span></button>
+        <button id="reset-button" class="inline-button reset">恢复演示起点</button>
+      </aside>
+    </div>
+  </section>
+  <section class="design" id="design" aria-labelledby="design-title">
+    <div class="frame">
+      <p class="eyebrow">产品设计说明</p>
+      <h2 id="design-title">让家具随任务改变。</h2>
+      <div class="design-grid">
+        <article><span class="design-label">产品形态</span><h3>十六个独立模块</h3><p>1 米见方的基座上，每格约 25 厘米。后侧模块升起并锁合桌板，桌下留出腿部空间。固定侧台供切换前临时放置物品。</p></article>
+        <article><span class="design-label">智能交互</span><h3>先预览，再移动</h3><p>使用者主动选择模式。系统检查承载面上是否有物品、地台是否有人，以及室友的需求。检测到冲突时，先给出可处理的原因。</p></article>
+        <article><span class="design-label">技术可行性</span><h3>先验证一格，再验证整面</h3><p>原型假设结合升降、锁止、重量与近距传感。先验证单格承载、断电锁止和防夹，再测试多格同步、噪声、清洁与维护。</p></article>
+        <article><span class="design-label">市场与未来</span><h3>从小户型试点</h3><p>面向小户型租住者，先与公寓运营方试点。对比折叠家具的切换用时、清场负担和维护成本，再评估模块租赁与换件服务。</p></article>
+      </div>
+      <div class="validation"><strong>最该验证的问题</strong><p>如果清理桌面比收一张折叠桌更麻烦，变形就没有解决痛点。用相同的任务和物品，记录两种方案的切换时间、搬动物品次数和两人等待时间。</p></div>
+    </div>
+  </section>
+</main>
+<footer class="frame footer"><span class="wordmark"><span class="mark" aria-hidden="true"></span> 一平方米</span><p>2036 未来科技好物 · 用户体验设计课程概念作品</p><a href="项目介绍与使用说明.md" download>下载项目说明 ↗</a></footer>
+</body>
+</html>
