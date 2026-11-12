@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#eeebe2">
   <meta name="description" content="一平方米变形地台。2036 年的小户型可变家具概念，互动演示学习、用餐、活动与双人共用。">
-  <link rel="stylesheet" href="style.css">
-  <script src="app.js" defer></script>
+  <link rel="stylesheet" href="style.css?v=2">
+  <script src="app.js?v=2" defer></script>
   <title>一平方米 · 2036 变形地台</title>
 </head>
 <body>
@@ -31,7 +31,7 @@
   <section class="scenario" aria-labelledby="scenario-title">
     <div class="frame scenario-grid">
       <div><p class="eyebrow">典型使用场景</p><h2 id="scenario-title">小房间，<br>一天要换好几次用途。</h2></div>
-      <div><p>合租学生小林在窗边写作业，中午想原地吃饭，晚上还想留出伸展空间。每换一件事，就要清桌、挪椅子、收折叠桌。和室友同时使用时，还要决定谁先用。</p><p>地台把家具收进地面。模式切换前先预览布局，再处理物品与占用，确认后才变形。</p></div>
+      <div><p>合租学生小林在窗边写作业，中午想原地吃饭，晚上还想留出伸展空间。每换一件事，就要清桌、挪椅子、收折叠桌。和室友同时使用时，还要决定谁先用。</p><p>地台把家具收进地面。选好下一种模式后，先处理物品与占用，确认后才变形。</p></div>
     </div>
   </section>
   <section class="demo frame" id="demo" aria-labelledby="demo-title">
@@ -43,8 +43,8 @@
     </div>
     <div class="lab">
       <figure class="scene">
-        <div class="scene-head"><span><i class="orange-dot"></i> <strong id="scene-mode">当前 · 学习</strong></span><span>4 × 4 模块</span></div>
-        <canvas id="lab-canvas" width="850" height="580" role="img" aria-label="地台模块布局预览"></canvas>
+        <div class="scene-head"><span><i class="orange-dot"></i> <strong id="scene-mode">当前 · 学习</strong></span><span id="scene-detail">4 × 4 模块</span></div>
+        <canvas id="lab-canvas" width="850" height="580" role="img" aria-label="地台当前布局"></canvas>
         <figcaption id="scene-caption">当前布局包含桌面、腿部空间和座位。</figcaption>
       </figure>
       <aside class="controls" aria-label="变形控制">
@@ -72,7 +72,7 @@
       <h2 id="design-title">让家具随任务改变。</h2>
       <div class="design-grid">
         <article><span class="design-label">产品形态</span><h3>十六个独立模块</h3><p>1 米见方的基座上，每格约 25 厘米。后侧模块升起并锁合桌板，桌下留出腿部空间。固定侧台供切换前临时放置物品。</p></article>
-        <article><span class="design-label">智能交互</span><h3>先预览，再移动</h3><p>使用者主动选择模式。系统检查承载面上是否有物品、地台是否有人，以及室友的需求。检测到冲突时，先给出可处理的原因。</p></article>
+        <article><span class="design-label">智能交互</span><h3>确认后才变形</h3><p>使用者主动选择模式。系统检查承载面上是否有物品、地台是否有人，以及室友的需求。检测到冲突时，先给出可处理的原因。</p></article>
         <article><span class="design-label">技术可行性</span><h3>先验证一格，再验证整面</h3><p>原型假设结合升降、锁止、重量与近距传感。先验证单格承载、断电锁止和防夹，再测试多格同步、噪声、清洁与维护。</p></article>
         <article><span class="design-label">市场与未来</span><h3>从小户型试点</h3><p>面向小户型租住者，先与公寓运营方试点。对比折叠家具的切换用时、清场负担和维护成本，再评估模块租赁与换件服务。</p></article>
       </div>

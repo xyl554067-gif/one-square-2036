@@ -28,10 +28,15 @@ let dishes = false;
 let moving = false;
 let frame = 0;
 
+function panelBottom(mode, x, y, height) {
+  const isDeskPanel = mode === 'study' && y < 2 && x > 0 && (y === 1 || x === 2);
+  return isDeskPanel ? Math.max(-.04, height - .03) : -.04;
+}
+
 function drawScene(canvas, heights, options = {}) {
-  const { dark = false, mode = 'study', items = 'none', occupied = false, roommate = false, showDishes = false } = options;
+  const { dark = false, mode = 'study', items = 'none', occupied = false, sharedMeal = false, showDishes = false, panelBottoms } = options;
   const ctx = canvas.getContext('2d');
-  const origin = [388, 246];
+  const origin = [388, 206 + Math.max(...heights) * (40 / 3)];
   const project = (x, y, z = 0) => [origin[0] + (x - y) * 65, origin[1] + (x + y) * 30 - z * 51];
   const points = (vertices) => vertices.map(([x, y, z]) => project(x, y, z));
 
@@ -99,15 +104,21 @@ function drawScene(canvas, heights, options = {}) {
     ellipse(cx + 9, cy - 1, 4, 3, '#6c8152');
   }
 
-  function person(x, y, z, color) {
-    const [cx, cy] = project(x, y, z);
-    ellipse(cx + 5, cy + 1, 19, 8, '#0003');
-    line([cx - 5, cy - 34], [cx - 8, cy], '#282e26', 7);
-    line([cx + 5, cy - 34], [cx + 9, cy], '#282e26', 7);
-    polygon([[cx-12,cy-69],[cx+11,cy-69],[cx+9,cy-31],[cx-9,cy-31]], color);
-    line([cx - 11, cy - 62], [cx - 17, cy - 40], color, 7);
-    line([cx + 10, cy - 62], [cx + 16, cy - 40], color, 7);
-    ellipse(cx, cy - 79, 9, 10, '#b8846a');
+  function occupancyMarker(x, y, z) {
+    plane(x + .06, y + .06, .88, .88, z, '#e96b48a8', '#ffe5c8');
+    for (let offset = .16; offset < .88; offset += .15) {
+      line(project(x + .06, y + offset, z), project(x + offset, y + .06, z), '#ffe5c880');
+      line(project(x + .94, y + 1 - offset, z), project(x + 1 - offset, y + .94, z), '#ffe5c880');
+    }
+    const [cx, cy] = project(x + .5, y + .5, z);
+    ellipse(cx, cy, 19, 12, '#8c3325');
+    ctx.save();
+    ctx.font = '700 17px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#fff4e1';
+    ctx.fillText('!', cx, cy + 1);
+    ctx.restore();
   }
 
   const background = ctx.createLinearGradient(0, 0, 850, 580);
@@ -139,11 +150,10 @@ function drawScene(canvas, heights, options = {}) {
     const modeSeat = mode === 'study' && y === 3 || mode === 'meal' && (x === 0 || x === 3) && (y === 1 || y === 2);
     const material = height > .08 && modeSeat ? fabric : height > .3 ? ivory : timber;
     const top = height + .13;
-    const suspendedTop = mode === 'study' && height > .4 && y < 2 && x > 0 && (y === 1 || x === 2);
-    if (suspendedTop) box(x + .013, y + .013, .973, .973, .13, -.04, timber);
-    const bottom = suspendedTop ? top - .16 : -.04;
+    const bottom = panelBottoms?.[y * 4 + x] ?? panelBottom(mode, x, y, height);
+    if (bottom > -.04) box(x + .013, y + .013, .973, .973, Math.min(bottom, .13), -.04, timber);
     box(x + .013, y + .013, .973, .973, top, bottom, material);
-    if (height > .42 && !suspendedTop) {
+    if (height > .42 && bottom <= .13) {
       const near = project(x + .08, y + .988, height * .42);
       const far = project(x + .92, y + .988, height * .42);
       line(near, far, '#37312237');
@@ -154,6 +164,7 @@ function drawScene(canvas, heights, options = {}) {
         line(project(x + .1, y + offset, top), project(x + .9, y + offset + .012, top), '#66503625');
       }
     }
+    if (occupied && x === 3 && y === 3) occupancyMarker(x, y, top + .006);
   });
 
   const tray = ['#c9b391', '#9c855f', '#776644', '#8c7757'];
@@ -163,10 +174,8 @@ function drawScene(canvas, heights, options = {}) {
   if (items === 'tray') { laptop(4.46, .33, 1.57); cup(4.99, 1.29, 1.58); }
   if (showDishes) {
     plate(1.53, 1.55, 1.80);
-    if (roommate) plate(2.40, 2.45, 1.80);
+    if (sharedMeal) plate(2.40, 2.45, 1.80);
   }
-  if (occupied) person(1.65, 2.53, .15, '#db7456');
-  if (roommate) person(3.80, 4.42, -.22, '#879d72');
 
   const measure = dark ? '#b6c1a8' : '#68715a';
   const left = project(-.03, 4.45, -.20);
@@ -196,18 +205,27 @@ function roommatePlan() {
   };
 }
 
-function drawLab(heights, preview = false) {
+function drawLab(heights = modes[current].layout, mode = current, panelBottoms) {
   drawScene(lab, heights, {
-    dark: true, mode: selected,
-    items: preview && objects === 'table' ? 'none' : objects,
-    occupied: byId('occupied').checked && !preview,
-    roommate: byId('shared').checked && byId('roommate').value !== 'idle',
-    showDishes: dishes && !preview
+    dark: true, mode, panelBottoms,
+    items: objects,
+    occupied: byId('occupied').checked,
+    sharedMeal: byId('shared').checked && byId('roommate').value === 'meal',
+    showDishes: dishes
   });
 }
 
-function update(heights, message) {
-  const preview = selected !== current && !moving;
+function clearances(plan) {
+  const steps = [];
+  if (objects === 'table') steps.push('把电脑和水杯移到侧台');
+  if (dishes) steps.push('收走餐盘');
+  if (byId('occupied').checked) steps.push('让使用者离开地台');
+  if (plan.conflict) steps.push('协调室友的使用时间');
+  return steps;
+}
+
+function update(message) {
+  const pending = selected !== current;
   const occupied = byId('occupied').checked;
   const shared = byId('shared').checked;
   const plan = roommatePlan();
@@ -217,34 +235,34 @@ function update(heights, message) {
     button.setAttribute('aria-pressed', String(button.dataset.mode === selected));
     button.disabled = moving;
   }
-  byId('scene-mode').textContent = `${moving ? '正在变形' : preview ? '预览' : '当前'} · ${modes[selected].title}`;
-  byId('scene-caption').textContent = modes[selected].caption;
-  lab.setAttribute('aria-label', `${modes[selected].title}地台${preview ? '预览' : '布局'}，${modes[selected].caption}`);
-  byId('control-title').textContent = `${modes[selected].title}模式`;
+  byId('scene-mode').textContent = moving ? `${modes[current].title} → ${modes[selected].title}` : `当前 · ${modes[current].title}`;
+  byId('scene-detail').textContent = moving ? '正在变形' : pending ? `待切换 · ${modes[selected].title}` : '4 × 4 模块';
+  byId('scene-detail').classList.toggle('pending', pending);
+  byId('scene-caption').textContent = occupied ? '斜纹标记表示地台上有人。' : modes[current].caption;
+  const itemDescription = dishes ? '餐桌上有餐盘' : objects === 'table' ? '桌面上有电脑和水杯' : '电脑和水杯在固定侧台';
+  lab.setAttribute('aria-label', `${byId('scene-mode').textContent}。${itemDescription}。${byId('scene-caption').textContent}`);
+  byId('control-title').textContent = pending ? `切换到${modes[selected].title}` : `${modes[current].title}模式`;
   byId('control-description').textContent = modes[selected].description;
   byId('item-status').textContent = dishes ? '餐桌有餐盘' : objects === 'table' ? '桌面有电脑和水杯' : '电脑和水杯在固定侧台';
   byId('item-button').textContent = dishes ? '收走餐盘' : objects === 'table' ? '移到固定侧台' : '放回学习桌';
   byId('item-button').hidden = !dishes && objects === 'tray' && current !== 'study';
   byId('item-button').disabled = moving;
   ['occupied', 'shared', 'roommate', 'reset-button'].forEach((id) => { byId(id).disabled = moving; });
-  const blockers = [];
-  if (occupied) blockers.push('地台上有人');
-  if (objects === 'table' || dishes) blockers.push('桌面物品未移走');
-  if (plan.conflict) blockers.push('两人的空间需求冲突');
-  byId('apply-button').disabled = !preview;
-  const notice = moving ? '正在模拟升降。' : preview && blockers.length ? `暂不能变形：${blockers.join('、')}。` : preview ? '准备就绪，可确认变形。' : '选择上方的时间，查看另一种布局。';
+  const steps = clearances(plan);
+  byId('apply-button').disabled = moving || !pending || steps.length > 0;
+  const notice = moving ? '正在模拟升降。' : pending && steps.length ? `切换前请先${steps.join('、')}。` : pending ? '准备就绪，可确认变形。' : '选择上方的时间，安排下一种布局。';
   byId('feedback').textContent = message || notice;
-  byId('feedback').classList.toggle('warning', preview && blockers.length > 0);
-  drawLab(heights || modes[selected].layout, preview);
-  return blockers;
+  byId('feedback').classList.toggle('warning', pending && steps.length > 0);
+  drawLab();
 }
 
 function transform() {
   if (moving || current === selected) return;
-  const blockers = update();
-  if (blockers.length) return;
+  if (clearances(roommatePlan()).length) return;
   const from = modes[current].layout;
   const to = modes[selected].layout;
+  const fromBottoms = from.map((height, index) => panelBottom(current, index % 4, Math.floor(index / 4), height));
+  const toBottoms = to.map((height, index) => panelBottom(selected, index % 4, Math.floor(index / 4), height));
   moving = true;
   const start = performance.now();
   const duration = reducedMotion.matches ? 0 : 790;
@@ -252,16 +270,18 @@ function transform() {
     const progress = duration === 0 ? 1 : Math.min(1, (now - start) / duration);
     const eased = progress * progress * (3 - 2 * progress);
     if (progress < 1) {
-      drawLab(from.map((height, index) => height + (to[index] - height) * eased));
+      const heights = from.map((height, index) => height + (to[index] - height) * eased);
+      const bottoms = fromBottoms.map((bottom, index) => bottom + (toBottoms[index] - bottom) * eased);
+      drawLab(heights, progress < .5 ? current : selected, bottoms);
       frame = requestAnimationFrame(animate);
       return;
     }
     current = selected;
     dishes = current === 'meal';
     moving = false;
-    update(null, `已切换至${modes[current].title}模式。`);
+    update(`已切换至${modes[current].title}模式。`);
   }
-  update(from);
+  update();
   frame = requestAnimationFrame(animate);
 }
 
@@ -282,7 +302,7 @@ byId('reset-button').addEventListener('click', () => {
   byId('occupied').checked = false;
   byId('shared').checked = false;
   byId('roommate').value = 'study';
-  update(null, '已恢复到学习模式，电脑和水杯在桌面上。');
+  update('已恢复到学习模式，电脑和水杯在桌面上。');
 });
 
 drawScene(byId('hero-canvas'), modes.study.layout, { items: 'table' });

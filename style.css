@@ -66,6 +66,7 @@ h2 { font-family: var(--serif); font-size: clamp(34px, 4.3vw, 56px); line-height
 .scene-head { padding: 15px 19px; border-bottom: 1px solid #555d4d; display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 11px; }
 .scene-head > span:first-child { display: flex; align-items: center; gap: 9px; }
 .scene-head strong { font-weight: 500; }
+#scene-detail.pending { color: #ffe4c4; border: 1px solid #94765b; padding: 4px 8px; }
 .scene figcaption { border-top: 1px solid #555d4d; min-height: 48px; }
 .controls { padding: clamp(20px, 3vw, 40px); background: var(--light); }
 .controls h3 { font-size: 24px; margin-bottom: 10px; }
